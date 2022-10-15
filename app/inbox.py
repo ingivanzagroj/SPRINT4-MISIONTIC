@@ -18,10 +18,8 @@ def getDB():
 def show():
     db = get_db()
     messages = db.execute(
-        'select user.username, message.subject, message.body, message.created '
-        'from message '
-        'join user on user.id = message.from_id '
-        'where message.to_id = ? ',(g.user['id'],)
+    "select user.username, message.id, message.subject, message.body, message.created from message join user on user.id = message.from_id where message.to_id = ?",
+        (g.user['id'],)
     ).fetchall()
 
     return render_template('inbox/show.html', messages=messages)
@@ -32,9 +30,9 @@ def show():
 def send():
     if request.method == 'POST':        
         from_id = g.user['id']
-        to_username = request.form("to")
-        subject = request.form("subject")
-        body = request.form("body")
+        to_username = request.form["to"]
+        subject = request.form['subject']
+        body = request.form["body"]
 
         db = get_db()
        
@@ -54,7 +52,7 @@ def send():
         userto = None 
         
         userto = db.execute(
-            "SELECT * FROM user WHERE username = ?", (to_username,)
+            "select * from user where username=?", (to_username,)
         ).fetchone()
         
         if userto is None:
@@ -65,7 +63,7 @@ def send():
         else:
             db = get_db()
             db.execute(
-                "INSERT INTO message (from_id, to_id, subject, body) VALUES(?,?,?,?)",
+                "insert into message (from_id, to_id, subject, body) values (?,?,?,?)",
                 (g.user['id'], userto['id'], subject, body)
             )
             db.commit()
